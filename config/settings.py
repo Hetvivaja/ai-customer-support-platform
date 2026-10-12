@@ -133,3 +133,14 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# Used for Authentoication and Authorization
+
+AUTH_USER_MODEL = 'users.User'
+
+# JWT authentication APIs
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+}
