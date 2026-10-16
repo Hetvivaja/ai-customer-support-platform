@@ -12,7 +12,10 @@ from chat.services.message_service import (
     send_message,
     get_ticket_messages,
 )
-
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from chat.services.gemini_service import ask_gemini
 
 class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
@@ -52,3 +55,39 @@ class MessageListCreateView(generics.ListCreateAPIView):
             response_serializer.data,
             status=status.HTTP_201_CREATED,
         )
+
+class AIChatView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        question = request.data.get("question", "")
+
+        if not isinstance(question, str) or not question.strip():
+            return Response(
+                {"error": "Please provide a question."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            answer = ask_gemini(question)
+
+            return Response(
+                {
+                    "question": question,
+                    "answer": answer,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except ValueError as error:
+            return Response(
+                {"error": str(error)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        except Exception as error:
+            print("Gemini error:", type(error).__name__, str(error))
+            return Response(
+        {"error": "AI service is temporarily unavailable."},
+        status=status.HTTP_502_BAD_GATEWAY,
+    )       
