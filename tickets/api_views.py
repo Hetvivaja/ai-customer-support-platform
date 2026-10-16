@@ -49,3 +49,20 @@ class TicketDetailView(generics.RetrieveAPIView):
             return Ticket.objects.filter(assigned_agent=user)
 
         return get_customer_tickets(user)
+
+
+class TicketUpdateView(generics.UpdateAPIView):
+    serializer_class = TicketSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ["patch", "options", "head"]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role in ["ADMIN", "MANAGER"]:
+            return Ticket.objects.all()
+
+        if user.role == "AGENT":
+            return Ticket.objects.filter(assigned_agent=user)
+
+        return get_customer_tickets(user)

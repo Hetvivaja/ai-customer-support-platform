@@ -39,7 +39,6 @@ class TicketSerializer(serializers.ModelSerializer):
             "customer_name",
             "assigned_agent",
             "assigned_agent_name",
-            "status",
             "created_at",
             "updated_at",
         ]

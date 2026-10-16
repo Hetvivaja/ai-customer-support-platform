@@ -60,34 +60,68 @@ class AIChatView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        question = request.data.get("question", "")
+        from rest_framework import status
+        from rest_framework.response import Response
+        from .models import Message
+        from tickets.models import Ticket
+        from .services.gemini_service import ask_gemini
 
-        if not isinstance(question, str) or not question.strip():
+        question = request.data.get("question", "").strip()
+        ticket_id= request.data.get("ticket_id")
+
+        if not question:
             return Response(
-                {"error": "Please provide a question."},
+                {"error": "Question is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not ticket_id:
+            return Response(
+                {"error": "ticket_id is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
+            ticket = Ticket.objects.get(
+                id=ticket_id,
+                # Only allow access to tickets assigned to this user
+                # or otherwise owned by them, depending on your model.
+            )
+        except Ticket.DoesNotExist:
+            return Response(
+                {"error": "Ticket not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
             answer = ask_gemini(question)
-
-            return Response(
-                {
-                    "question": question,
-                    "answer": answer,
-                },
-                status=status.HTTP_200_OK,
-            )
-
-        except ValueError as error:
-            return Response(
-                {"error": str(error)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         except Exception as error:
             print("Gemini error:", type(error).__name__, str(error))
             return Response(
-        {"error": "AI service is temporarily unavailable."},
-        status=status.HTTP_502_BAD_GATEWAY,
-    )       
+                {"error": "AI service is temporarily unavailable."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        Message.objects.create(
+            ticket=ticket,
+            sender=request.user,
+            content=question,
+            is_ai_generated=False,
+        )
+
+        Message.objects.create(
+            ticket=ticket,
+            sender=request.user,
+            content=answer,
+            is_ai_generated=True,
+        )
+
+        return Response(
+            {
+                "ticket_id": ticket.id,
+                "question": question,
+                "answer": answer,
+                "saved": True,
+            },
+            status=status.HTTP_200_OK,
+        )
