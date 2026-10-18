@@ -56,3 +56,15 @@ class TicketSerializer(serializers.ModelSerializer):
                 "Ticket description cannot be empty."
             )
         return value
+    
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get("request")
+
+        if request and request.user.is_authenticated:
+            if request.user.role not in ["ADMIN", "MANAGER", "AGENT"]:
+                fields["status"].read_only = True
+                fields["priority"].read_only = True
+
+        return fields
+
