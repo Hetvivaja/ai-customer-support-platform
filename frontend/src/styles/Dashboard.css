@@ -106,3 +106,76 @@
     flex-direction: column;
   }
 }
+
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 0;
+}
+
+.ticket-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 18px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ticket-item strong {
+  overflow-wrap: anywhere;
+}
+
+.ticket-item p {
+  margin-bottom: 0;
+  font-size: 13px;
+}
+
+.ticket-status {
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.error-message {
+  color: #dc2626;
+}
+
+
+.create-ticket-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.create-ticket-form h3 {
+  margin-top: 0;
+}
+
+.create-ticket-form input,
+.create-ticket-form textarea,
+.create-ticket-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: white;
+  color: #1e293b;
+  font: inherit;
+}
+
+.create-ticket-form textarea {
+  resize: vertical;
+}
+
+.create-ticket-form label {
+  margin-bottom: 0;
+}
