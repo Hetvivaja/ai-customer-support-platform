@@ -126,10 +126,33 @@ function Dashboard() {
     <div className="dashboard">
       <aside className="sidebar">
         <h2>AI Support</h2>
-        <p className="active">Dashboard</p>
-        <p>My Tickets</p>
-        <p>AI Chat</p>
-        <p>Profile</p>
+        <button
+  className="sidebar-link active"
+  onClick={() => window.location.href = "/dashboard"}
+>
+  Dashboard
+</button>
+
+<button
+  className="sidebar-link"
+  onClick={() => window.location.href = "/my-tickets"}
+>
+  My Tickets
+</button>
+
+<button
+  className="sidebar-link"
+  onClick={() => window.location.href = "/ai-chat"}
+>
+  AI Chat
+</button>
+
+<button
+  className="sidebar-link"
+  onClick={() => window.location.href = "/profile"}
+>
+  Profile
+</button>
       </aside>
 
       <main className="dashboard-main">

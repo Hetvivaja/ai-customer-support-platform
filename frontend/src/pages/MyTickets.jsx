@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import "../styles/MyTickets.css";
 
 function MyTickets() {
   const [tickets, setTickets] = useState([]);
@@ -30,7 +31,6 @@ function MyTickets() {
         }
 
         const data = await response.json();
-
         setTickets(
           Array.isArray(data) ? data : data.results || []
         );
@@ -45,39 +45,68 @@ function MyTickets() {
   }, []);
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h1>My Tickets</h1>
-      <p>View your support requests here.</p>
+    <div className="my-tickets-page">
+      <header className="my-tickets-header">
+        <div>
+          <h1>My Tickets</h1>
+          <p>View and track your support requests.</p>
+        </div>
 
-      {loading && <p>Loading tickets...</p>}
+        <button
+          className="my-tickets-back"
+          onClick={() => (window.location.href = "/dashboard")}
+        >
+          Back to Dashboard
+        </button>
+      </header>
 
-      {error && <p>{error}</p>}
+      {loading && (
+        <p className="my-tickets-message">Loading tickets...</p>
+      )}
+
+      {error && (
+        <p className="my-tickets-message my-tickets-error">
+          {error}
+        </p>
+      )}
 
       {!loading && !error && tickets.length === 0 && (
-        <p>No tickets found.</p>
+        <p className="my-tickets-message">
+          You have not created any tickets yet.
+        </p>
       )}
 
       {!loading && !error && tickets.length > 0 && (
-        <div>
+        <div className="my-tickets-list">
           {tickets.map((ticket) => (
-            <div
-              key={ticket.id}
-              style={{
-                padding: "16px",
-                marginBottom: "12px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-              }}
-            >
+            <article className="my-ticket-card" key={ticket.id}>
               <h3>{ticket.title}</h3>
-              <p>Ticket ID: #{ticket.id}</p>
-              <p>Priority: {ticket.priority}</p>
-              <p>Status: {ticket.status}</p>
-              <p>
-                Created:{" "}
-                {new Date(ticket.created_at).toLocaleString()}
+
+              <p className="my-ticket-id">
+                Ticket #{ticket.id}
               </p>
-            </div>
+
+              <p className="my-ticket-description">
+                {ticket.description}
+              </p>
+
+              <div className="my-ticket-meta">
+                <span className="my-ticket-badge my-ticket-status">
+                  {ticket.status?.replaceAll("_", " ")}
+                </span>
+
+                <span className="my-ticket-badge my-ticket-priority">
+                  {ticket.priority}
+                </span>
+              </div>
+
+              <p className="my-ticket-id">
+                Created:{" "}
+                {ticket.created_at
+                  ? new Date(ticket.created_at).toLocaleString()
+                  : "Not available"}
+              </p>
+            </article>
           ))}
         </div>
       )}
