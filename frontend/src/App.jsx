@@ -3,6 +3,7 @@ import "./App.css";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import MyTickets from "./pages/MyTickets";
+import TicketDetails from "./pages/TicketDetails";
 
 function App() {
   const path = window.location.pathname;
@@ -27,6 +28,10 @@ function App() {
 
   if (path === "/my-tickets") {
     return <MyTickets />;
+  }
+
+  if (path === "/ticket-details") {
+    return <TicketDetails />;
   }
 
   return <h1>Page not found</h1>;

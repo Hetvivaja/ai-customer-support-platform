@@ -1,0 +1,90 @@
+
+.ticket-details-page {
+  min-height: 100vh;
+  padding: 32px;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.ticket-details-page h1 {
+  margin: 24px 0;
+  font-size: 28px;
+}
+
+.ticket-details-back {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.ticket-details-back:hover {
+  background: #1d4ed8;
+}
+
+.ticket-details-card {
+  max-width: 800px;
+  padding: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+}
+
+.ticket-details-card h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  overflow-wrap: anywhere;
+}
+
+.ticket-details-id {
+  margin-bottom: 24px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.ticket-details-field {
+  padding: 16px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ticket-details-field:last-child {
+  border-bottom: none;
+}
+
+.ticket-details-field strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #334155;
+}
+
+.ticket-details-field p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ticket-details-error {
+  padding: 16px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+@media (max-width: 600px) {
+  .ticket-details-page {
+    padding: 18px;
+  }
+
+  .ticket-details-card {
+    padding: 20px;
+  }
+
+  .ticket-details-page h1 {
+    font-size: 24px;
+  }
+}

@@ -106,6 +106,15 @@ function MyTickets() {
                   ? new Date(ticket.created_at).toLocaleString()
                   : "Not available"}
               </p>
+              
+              <button
+                className="my-tickets-back"
+                onClick={() =>
+                  (window.location.href = `/ticket-details?id=${ticket.id}`)
+                }>
+                View Details
+              </button>
+
             </article>
           ))}
         </div>
