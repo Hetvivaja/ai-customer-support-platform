@@ -46,6 +46,7 @@ function Dashboard() {
         const data = await response.json();
 
         // Supports either a regular array or paginated results.
+        
         setTickets(Array.isArray(data) ? data : data.results || []);
       } catch (err) {
         setError(err.message || "Unable to connect to Django.");
@@ -137,12 +138,12 @@ function Dashboard() {
   className="sidebar-link"
   onClick={() => window.location.href = "/my-tickets"}
 >
-  My Tickets
+  My Support Requests
 </button>
 
 <button
   className="sidebar-link"
-  onClick={() => window.location.href = "/my-tickets"}
+  onClick={() => window.location.href = "/ai-chat"}
 >
   AI Chat
 </button>
@@ -167,30 +168,30 @@ function Dashboard() {
 
         <section className="stats">
           <div className="stat-card">
-            <p>Total Tickets</p>
+            <p>Total Requests</p>
             <h2>{loading ? "..." : tickets.length}</h2>
           </div>
 
           <div className="stat-card">
-            <p>Open Tickets</p>
+            <p>Open Requests</p>
             <h2>{loading ? "..." : openTickets}</h2>
           </div>
 
           <div className="stat-card">
-            <p>Resolved Tickets</p>
+            <p>Resolved Requests</p>
             <h2>{loading ? "..." : resolvedTickets}</h2>
           </div>
         </section>
 
         <section className="tickets-panel">
-          <h2>My Recent Tickets</h2>
+          <h2>My Recent Requests</h2>
 
-          {loading && <p>Loading tickets...</p>}
+          {loading && <p>Loading requests...</p>}
 
           {error && <p className="error-message">{error}</p>}
 
           {!loading && !error && tickets.length === 0 && (
-            <p>You have not created any tickets yet.</p>
+            <p>You have not created any requests yet.</p>
           )}
 
           {!loading && !error && tickets.length > 0 && (
@@ -199,7 +200,7 @@ function Dashboard() {
                 <div className="ticket-item" key={ticket.id}>
                   <div>
                     <strong>{ticket.title}</strong>
-                    <p>Ticket #{ticket.id}</p>
+                    <p>Request #{ticket.id}</p> 
                   </div>
 
                   <span className="ticket-status">
@@ -214,13 +215,13 @@ function Dashboard() {
             setCreateError("");
             setShowCreateForm((previous) => !previous);
             }}>
-            {showCreateForm ? "Cancel" : "+ Create New Ticket"}
+            {showCreateForm ? "Cancel" : "+ Create New Request"}
           </button>
             {showCreateForm && (
           <form className="create-ticket-form" onSubmit={handleCreateTicket}>
-              <h3>Create a Support Ticket</h3>
+              <h3>Create a Support Request</h3>
 
-              <label htmlFor="ticket-title">Ticket Title</label>
+              <label htmlFor="ticket-title">Request Title</label>
               <input
                   id="ticket-title"
                   type="text"
@@ -257,7 +258,7 @@ function Dashboard() {
               )}
 
               <button type="submit" disabled={saving}>
-                {saving ? "Creating..." : "Submit Ticket"}
+                {saving ? "Creating..." : "Submit Request"}
               </button>
           </form>
           )}
