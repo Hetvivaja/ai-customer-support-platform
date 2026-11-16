@@ -142,7 +142,7 @@ function Dashboard() {
 
 <button
   className="sidebar-link"
-  onClick={() => window.location.href = "/ai-chat"}
+  onClick={() => window.location.href = "/my-tickets"}
 >
   AI Chat
 </button>

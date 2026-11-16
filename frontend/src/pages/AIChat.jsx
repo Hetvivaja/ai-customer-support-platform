@@ -4,7 +4,12 @@ import "../styles/AIChat.css";
 
 function AIChat() {
   const [question, setQuestion] = useState("");
-  const [ticketId, setTicketId] = useState("");
+
+  // Get ticket ID automatically from the URL
+  const [ticketId] = useState(
+    new URLSearchParams(window.location.search).get("ticketId") || ""
+  );
+
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -12,8 +17,13 @@ function AIChat() {
   async function sendMessage(event) {
     event.preventDefault();
 
-    if (!question.trim() || !ticketId) {
-      setError("Please enter your question and ticket ID.");
+    if (!question.trim()) {
+      setError("Please enter your question.");
+      return;
+    }
+
+    if (!ticketId) {
+      setError("Please open AI Chat from one of your tickets.");
       return;
     }
 
@@ -36,7 +46,6 @@ function AIChat() {
     setLoading(true);
 
     try {
-      console.log("Sending AI request:", currentQuestion, ticketId);
       const response = await fetch(
         "http://127.0.0.1:8000/api/chat/ai/",
         {
@@ -53,7 +62,6 @@ function AIChat() {
       );
 
       const data = await response.json();
-      console.log("AI response:", response.status, data);
 
       if (!response.ok) {
         throw new Error(
@@ -83,28 +91,25 @@ function AIChat() {
 
         <button
           className="ai-chat-back"
-          onClick={() => (window.location.href = "/dashboard")}
+          onClick={() =>
+            (window.location.href = "/my-tickets")
+          }
         >
-          Back to Dashboard
+          Back to My Tickets
         </button>
       </header>
 
       <section className="ai-chat-card">
-        <label htmlFor="ticketId">Ticket ID</label>
 
-        <input
-          id="ticketId"
-          type="number"
-          min="1"
-          value={ticketId}
-          onChange={(event) => setTicketId(event.target.value)}
-          placeholder="Enter your ticket ID, e.g. 1"
-        />
+        <div className="ai-chat-ticket-info">
+          <strong>Selected Ticket: #{ticketId || "Not selected"}</strong>
+          <p>Your AI conversation is linked to this ticket.</p>
+        </div>
 
         <div className="ai-chat-messages">
           {messages.length === 0 && (
             <p className="ai-chat-empty">
-              Hello! Select a ticket and ask your question.
+              Hello! How can I help you with this ticket?
             </p>
           )}
 

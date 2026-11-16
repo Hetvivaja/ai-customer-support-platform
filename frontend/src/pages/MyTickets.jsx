@@ -106,7 +106,7 @@ function MyTickets() {
                   ? new Date(ticket.created_at).toLocaleString()
                   : "Not available"}
               </p>
-              
+            <div className="my-ticket-actions">
               <button
                 className="my-tickets-back"
                 onClick={() =>
@@ -114,7 +114,15 @@ function MyTickets() {
                 }>
                 View Details
               </button>
-
+              <button
+                  className="my-tickets-back"
+                  onClick={() =>
+                    (window.location.href = `/ai-chat?ticketId=${ticket.id}`)
+                  }
+                >
+                  Chat with AI
+              </button>
+            </div>
             </article>
           ))}
         </div>
