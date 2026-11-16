@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import MyTickets from "./pages/MyTickets";
 import TicketDetails from "./pages/TicketDetails";
+import AIChat from "./pages/AIChat";
 
 function App() {
   const path = window.location.pathname;
@@ -32,6 +33,10 @@ function App() {
 
   if (path === "/ticket-details") {
     return <TicketDetails />;
+  }
+
+  if (path === "/ai-chat") {
+    return <AIChat />;
   }
 
   return <h1>Page not found</h1>;

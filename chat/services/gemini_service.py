@@ -1,3 +1,4 @@
+
 import os
 import time
 from google import genai
@@ -16,10 +17,12 @@ def ask_gemini(question):
 
     client = genai.Client(api_key=api_key)
 
-    for attempt in range(3):
+    max_attempts = 4
+
+    for attempt in range(max_attempts):
         try:
             response = client.models.generate_content(
-                model="gemini-flash-latest",
+                model="gemini-3.5-flash-lite",# model= "gemini-3.8-flash","gemini-flash-latest",
                 contents=question,
             )
 
@@ -29,17 +32,24 @@ def ask_gemini(question):
             return response.text
 
         except Exception as error:
-            error_message = str(error)
+            error_message = str(error).upper()
 
             temporary_error = (
                 "503" in error_message
                 or "429" in error_message
                 or "UNAVAILABLE" in error_message
                 or "RESOURCE_EXHAUSTED" in error_message
+                or "500" in error_message
+                or "INTERNAL" in error_message
             )
 
-            if not temporary_error or attempt == 2:
+            if not temporary_error or attempt == max_attempts - 1:
                 raise
 
-            time.sleep(2 ** attempt)
-
+            wait_seconds = 2 ** (attempt + 1)
+            print(
+                f"Gemini temporarily unavailable. "
+                f"Retrying in {wait_seconds} seconds "
+                f"(attempt {attempt + 1}/{max_attempts - 1})..."
+            )
+            time.sleep(wait_seconds)
