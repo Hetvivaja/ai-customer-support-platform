@@ -3,11 +3,9 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .api_views import (RegisterView, MeView,  EmailTokenObtainPairSerializer,)
+from .api_views import RegisterView, MeView
+from .email_auth import EmailTokenObtainPairView
 
-
-class EmailTokenObtainPairView(TokenObtainPairView):
-    serializer_class = EmailTokenObtainPairSerializer
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
