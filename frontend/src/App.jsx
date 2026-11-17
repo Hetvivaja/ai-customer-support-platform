@@ -1,9 +1,9 @@
 
 import "./App.css";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import MyTickets from "./pages/MyTickets";
-import TicketDetails from "./pages/TicketDetails";
+import Login from "./pages/auth/Login";
+import CustomerDashboard from "./pages/customer/CustomerDashboard";
+import MyTickets from "./pages/customer/MyTickets";
+import TicketDetails from "./pages/customer/TicketDetails";
 import AIChat from "./pages/AIChat";
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
   }
 
   if (path === "/dashboard") {
-    return <Dashboard />;
+    return <CustomerDashboard  />;
   }
 
   if (path === "/my-tickets") {

@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import "../styles/TicketDetails.css";
+import "../../styles/customer/TicketDetails.css";
 
 function TicketDetails() {
   const [ticket, setTicket] = useState(null);

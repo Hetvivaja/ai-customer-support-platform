@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import "../styles/MyTickets.css";
+import "../../styles/customer/MyTickets.css";
 
 function MyTickets() {
   const [tickets, setTickets] = useState([]);
