@@ -5,9 +5,14 @@ from users.repositories.user_repository import UserRepository
 
 @transaction.atomic
 def register_customer(username, email, password):
+    email=email.strip()
+
     if UserRepository.get_by_username(username):
         raise ValueError("Username already exists")
 
+    if UserRepository.get_by_email(email):
+        raise ValueError("An account with this email already exists")
+    
     return UserRepository.create(
         username=username,
         email=email,
