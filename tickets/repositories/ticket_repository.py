@@ -20,17 +20,23 @@ class TicketRepository:
         return Ticket.objects.filter(customer_id=customer_id)
 
     @staticmethod
+    def get_by_agent(agent_id):
+        return Ticket.objects.filter(assigned_agent_id=agent_id)
+    
+    @staticmethod
     def update(ticket, **kwargs):
+        allowed = {
+            "title",
+            "description",
+            "status",
+            "priority",
+            "assigned_agent",
+            "ai_summary",
+            "ai_suggested_priority",
+        }
         for field, value in kwargs.items():
-            if field not in {
-                "title",
-                "description",
-                "status",
-                "priority",
-                "assigned_agent",
-            }:
+            if field not in allowed:
                 raise ValueError(f"Unsupported field: {field}")
-
             setattr(ticket, field, value)
 
         ticket.save()

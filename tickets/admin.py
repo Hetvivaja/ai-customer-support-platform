@@ -9,8 +9,9 @@ class TicketAdmin(admin.ModelAdmin):
         "assigned_agent",
         "status",
         "priority",
+        "ai_suggested_priority",
         "created_at",
     )
-
+    readonly_fields = ("ai_summary",)
     list_filter = ("status", "priority")
     search_fields = ("title", "description")

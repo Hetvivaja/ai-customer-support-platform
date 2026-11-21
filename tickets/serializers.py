@@ -29,6 +29,8 @@ class TicketSerializer(serializers.ModelSerializer):
             "assigned_agent_name",
             "status",
             "priority",
+            "ai_summary",
+            "ai_suggested_priority",
             "created_at",
             "updated_at",
         ]
@@ -39,6 +41,8 @@ class TicketSerializer(serializers.ModelSerializer):
             "customer_name",
             "assigned_agent",
             "assigned_agent_name",
+            "ai_summary",
+            "ai_suggested_priority",
             "created_at",
             "updated_at",
         ]
@@ -65,6 +69,7 @@ class TicketSerializer(serializers.ModelSerializer):
             if request.user.role not in ["ADMIN", "MANAGER", "AGENT"]:
                 fields["status"].read_only = True
                 fields["priority"].read_only = True
+                fields.pop("ai_summary", None)
+                fields.pop("ai_suggested_priority", None)
 
         return fields
-

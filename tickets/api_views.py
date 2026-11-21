@@ -1,29 +1,21 @@
-
 from rest_framework import generics, permissions
-from rest_framework.exceptions import NotFound
 
-from tickets.models import Ticket
 from tickets.serializers import TicketSerializer
 from tickets.services.ticket_service import (
     create_ticket,
-    get_customer_tickets,
+    get_visible_tickets,
 )
 
 
-class TicketListCreateView(generics.ListCreateAPIView):
-    serializer_class = TicketSerializer
+class VisibleTicketsMixin:
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TicketSerializer
 
     def get_queryset(self):
-        user = self.request.user
+        return get_visible_tickets(self.request.user)
 
-        if user.role in ["ADMIN", "MANAGER"]:
-            return Ticket.objects.all()
 
-        if user.role == "AGENT":
-            return Ticket.objects.filter(assigned_agent=user)
-
-        return get_customer_tickets(user)
+class TicketListCreateView(VisibleTicketsMixin, generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         ticket = create_ticket(
@@ -35,34 +27,9 @@ class TicketListCreateView(generics.ListCreateAPIView):
         serializer.instance = ticket
 
 
-class TicketDetailView(generics.RetrieveAPIView):
-    serializer_class = TicketSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-
-        if user.role in ["ADMIN", "MANAGER"]:
-            return Ticket.objects.all()
-
-        if user.role == "AGENT":
-            return Ticket.objects.filter(assigned_agent=user)
-
-        return get_customer_tickets(user)
+class TicketDetailView(VisibleTicketsMixin, generics.RetrieveAPIView):
+    pass
 
 
-class TicketUpdateView(generics.UpdateAPIView):
-    serializer_class = TicketSerializer
-    permission_classes = [permissions.IsAuthenticated]
+class TicketUpdateView(VisibleTicketsMixin, generics.UpdateAPIView):
     http_method_names = ["patch", "options", "head"]
-
-    def get_queryset(self):
-        user = self.request.user
-
-        if user.role in ["ADMIN", "MANAGER"]:
-            return Ticket.objects.all()
-
-        if user.role == "AGENT":
-            return Ticket.objects.filter(assigned_agent=user)
-
-        return get_customer_tickets(user)

@@ -24,6 +24,29 @@ def get_customer_tickets(customer):
 def get_ticket_by_id(ticket_id):
     return TicketRepository.get_by_id(ticket_id)
 
+def get_visible_tickets(user):
+    """Tickets this user is allowed to see."""
+    if user.role in (User.Role.ADMIN, User.Role.MANAGER):
+        queryset = TicketRepository.get_all()
+    elif user.role == User.Role.AGENT:
+        queryset = TicketRepository.get_by_agent(user.id)
+    else:
+        queryset = TicketRepository.get_by_customer(user.id)
+
+    return queryset.select_related("customer", "assigned_agent")
+
+def get_ticket_for_user(ticket_id, user):
+    """Return the ticket if the user may see it, otherwise raise ValueError.
+
+    A forbidden ticket gives the same error as a missing one, so users
+    can't discover which ticket IDs exist.
+    """
+    ticket = get_visible_tickets(user).filter(id=ticket_id).first()
+
+    if ticket is None:
+        raise ValueError("Ticket not found.")
+
+    return ticket
 
 def assign_ticket(ticket_id, agent_id):
     ticket = TicketRepository.get_by_id(ticket_id)

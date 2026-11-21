@@ -44,8 +44,20 @@ class Ticket(models.Model):
         default=Priority.MEDIUM,
     )
 
+     # AI fields (filled by AI features in a later step)
+    ai_summary = models.TextField(blank=True, default="")
+    ai_suggested_priority = models.CharField(
+        max_length=20,
+        choices=Priority.choices,
+        blank=True,
+        default="",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ["-created_at"]
+        
     def __str__(self):
         return self.title
