@@ -5,7 +5,6 @@ from django.db import transaction
 from chat.models import Message
 from chat.repositories.message_repository import MessageRepository
 from chat.services.gemini_service import ask_gemini
-from tickets.models import Ticket
 from tickets.services.ticket_service import get_ticket_for_user
 
 logger = logging.getLogger(__name__)
@@ -51,8 +50,8 @@ def ask_ai_on_ticket(ticket_id, user, question):
     except ValueError as error:
         raise LookupError(str(error))
 
-    if ticket.status in [Ticket.Status.RESOLVED, Ticket.Status.CLOSED]:
-        raise ValueError("This request is resolved or closed.")
+    # if ticket.status in [Ticket.Status.RESOLVED, Ticket.Status.CLOSED]:
+    #     raise ValueError("This request is resolved or closed.")
 
     # Read history BEFORE saving the new question.
     saved = MessageRepository.get_recent_ai_history(

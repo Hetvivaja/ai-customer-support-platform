@@ -1,7 +1,7 @@
 from django.db import transaction
 from users.models import User
 from users.repositories.user_repository import UserRepository
-
+from django.db.models import Count, Q
 
 @transaction.atomic
 def register_customer(username, email, password):
@@ -33,3 +33,15 @@ def change_customer_email(user_id, new_email):
         return None
 
     return UserRepository.update(user, email=new_email)
+
+def list_active_agents():
+    return (
+        User.objects.filter(role=User.Role.AGENT, is_active=True)
+        .annotate(
+            active_tickets=Count(
+                "assigned_tickets",
+                filter=Q(assigned_tickets__status__in=["OPEN", "IN_PROGRESS"]),
+            )
+        )
+        .order_by("username")
+    )

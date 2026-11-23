@@ -48,11 +48,15 @@ def get_ticket_for_user(ticket_id, user):
 
     return ticket
 
-def assign_ticket(ticket_id, agent_id):
-    ticket = TicketRepository.get_by_id(ticket_id)
+STAFF_ROLES = (User.Role.AGENT, User.Role.MANAGER, User.Role.ADMIN)
+def assign_ticket(ticket_id, agent_id, actor):
+    if actor.role not in (User.Role.MANAGER, User.Role.ADMIN):
+        raise PermissionError("Only managers and admins can assign tickets.")
 
-    if ticket is None:
-        raise ValueError("Ticket not found.")
+    ticket = get_ticket_for_user(ticket_id, actor)
+
+    if ticket.status == Ticket.Status.CLOSED:
+        raise ValueError("Cannot assign a closed ticket.")
 
     agent = User.objects.filter(
         id=agent_id,
@@ -63,22 +67,61 @@ def assign_ticket(ticket_id, agent_id):
     if agent is None:
         raise ValueError("Active support agent not found.")
 
-    return TicketRepository.update(
-        ticket,
-        assigned_agent=agent,
-        status=Ticket.Status.IN_PROGRESS,
-    )
+    changes = {"assigned_agent": agent}
+    if ticket.status == Ticket.Status.OPEN:
+        changes["status"] = Ticket.Status.IN_PROGRESS
 
+    return TicketRepository.update(ticket, **changes)
 
-def update_ticket_status(ticket_id, status):
-    ticket = TicketRepository.get_by_id(ticket_id)
+def update_ticket(ticket_id, actor, data):
+    """Apply a partial update. What can change depends on the actor's role."""
+    ticket = get_ticket_for_user(ticket_id, actor)
 
-    if ticket is None:
-        raise ValueError("Ticket not found.")
+    if actor.role in STAFF_ROLES:
+        allowed = {"status", "priority"}
+    else:
+        if ticket.status != Ticket.Status.OPEN:
+            raise PermissionError("You can only edit open requests.")
+        allowed = {"title", "description"}
 
-    allowed_statuses = Ticket.Status.values
+    forbidden = [field for field in data if field not in allowed]
+    if forbidden:
+        raise PermissionError(f"You cannot change: {', '.join(forbidden)}.")
 
-    if status not in allowed_statuses:
-        raise ValueError("Invalid ticket status.")
+    changes = {}
 
-    return TicketRepository.update(ticket, status=status)
+    for field in allowed & set(data):
+        value = data[field]
+
+        if field == "status":
+            if value not in Ticket.Status.values:
+                raise ValueError("Invalid ticket status.")
+        elif field == "priority":
+            if value not in Ticket.Priority.values:
+                raise ValueError("Invalid ticket priority.")
+        else:
+            value = str(value).strip()
+            if not value:
+                raise ValueError(f"{field.capitalize()} cannot be empty.")
+            if field == "title" and len(value) > 200:
+                raise ValueError("Title is too long (maximum 200 characters).")
+
+        changes[field] = value
+
+    if not changes:
+        raise ValueError("Nothing to update.")
+
+    return TicketRepository.update(ticket, **changes)
+
+# def update_ticket_status(ticket_id, status):
+#     ticket = TicketRepository.get_by_id(ticket_id)
+
+#     if ticket is None:
+#         raise ValueError("Ticket not found.")
+
+#     allowed_statuses = Ticket.Status.values
+
+#     if status not in allowed_statuses:
+#         raise ValueError("Invalid ticket status.")
+
+#     return TicketRepository.update(ticket, status=status)
