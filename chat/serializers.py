@@ -17,6 +17,7 @@ class MessageSerializer(serializers.ModelSerializer):
             "sender_name",
             "content",
             "is_ai_generated",
+            "channel",
             "created_at",
         ]
 
@@ -26,6 +27,7 @@ class MessageSerializer(serializers.ModelSerializer):
             "sender",
             "sender_name",
             "is_ai_generated",
+            "channel",
             "created_at",
         ]
 

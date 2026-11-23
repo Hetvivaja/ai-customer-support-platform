@@ -73,7 +73,7 @@ function AIChat() {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/chat/tickets/${selectedTicketId}/messages/`,
+          `http://127.0.0.1:8000/api/chat/tickets/${selectedTicketId}/messages/?channel=AI`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

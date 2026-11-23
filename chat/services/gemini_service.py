@@ -1,10 +1,31 @@
-
+import logging
 import os
 import time
+
 from google import genai
+from google.genai import types
+
+logger = logging.getLogger(__name__)
+
+MODEL_NAME = "gemini-3.5-flash-lite"  # keep whichever name works for your key
+MAX_ATTEMPTS = 3
 
 
-def ask_gemini(question):
+def _build_contents(question, history):
+    """history = [{"role": "user" | "assistant", "text": "..."}]"""
+    contents = []
+
+    for item in history or []:
+        role = "model" if item["role"] == "assistant" else "user"
+        contents.append(
+            types.Content(role=role, parts=[types.Part(text=item["text"])])
+        )
+
+    contents.append(types.Content(role="user", parts=[types.Part(text=question)]))
+    return contents
+
+
+def ask_gemini(question, history=None, system_instruction=None):
     api_key = os.getenv("GEMINI_API_KEY")
 
     if not api_key:
@@ -16,14 +37,19 @@ def ask_gemini(question):
         raise ValueError("Question cannot be empty.")
 
     client = genai.Client(api_key=api_key)
+    contents = _build_contents(question, history)
+    config = (
+        types.GenerateContentConfig(system_instruction=system_instruction)
+        if system_instruction
+        else None
+    )
 
-    max_attempts = 4
-
-    for attempt in range(max_attempts):
+    for attempt in range(MAX_ATTEMPTS):
         try:
             response = client.models.generate_content(
-                model="gemini-3.5-flash-lite",# model= "gemini-3.8-flash","gemini-flash-latest",
-                contents=question,
+                model=MODEL_NAME,
+                contents=contents,
+                config=config,
             )
 
             if not response.text:
@@ -32,24 +58,20 @@ def ask_gemini(question):
             return response.text
 
         except Exception as error:
-            error_message = str(error).upper()
+            message = str(error).upper()
 
-            temporary_error = (
-                "503" in error_message
-                or "429" in error_message
-                or "UNAVAILABLE" in error_message
-                or "RESOURCE_EXHAUSTED" in error_message
-                or "500" in error_message
-                or "INTERNAL" in error_message
+            temporary = any(
+                code in message
+                for code in ("503", "429", "500", "UNAVAILABLE",
+                             "RESOURCE_EXHAUSTED", "INTERNAL")
             )
 
-            if not temporary_error or attempt == max_attempts - 1:
+            if not temporary or attempt == MAX_ATTEMPTS - 1:
                 raise
 
             wait_seconds = 2 ** (attempt + 1)
-            print(
-                f"Gemini temporarily unavailable. "
-                f"Retrying in {wait_seconds} seconds "
-                f"(attempt {attempt + 1}/{max_attempts - 1})..."
+            logger.warning(
+                "Gemini temporarily unavailable, retrying in %s s (attempt %s/%s)",
+                wait_seconds, attempt + 1, MAX_ATTEMPTS - 1,
             )
             time.sleep(wait_seconds)

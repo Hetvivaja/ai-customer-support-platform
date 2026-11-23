@@ -1,10 +1,9 @@
 from django.db import transaction
-from django.contrib.auth import get_user_model
 
-from tickets.models import Ticket
+from chat.models import Message
 from chat.repositories.message_repository import MessageRepository
-
-User = get_user_model()
+from tickets.models import Ticket
+from tickets.services.ticket_service import get_ticket_for_user
 
 
 @transaction.atomic
@@ -14,60 +13,26 @@ def send_message(ticket_id, sender, content):
     if not content:
         raise ValueError("Message cannot be empty.")
 
-    ticket = Ticket.objects.filter(id=ticket_id).first()
+    ticket = get_ticket_for_user(ticket_id, sender)  # ValueError if not visible
 
-    if ticket is None:
-        raise ValueError("Ticket not found.")
-
-    if sender.role == User.Role.CUSTOMER:
-        if ticket.customer_id != sender.id:
-            raise PermissionError(
-                "You can only message on your own tickets."
-            )
-
-    elif sender.role == User.Role.AGENT:
-        if ticket.assigned_agent_id != sender.id:
-            raise PermissionError(
-                "You can only message on tickets assigned to you."
-            )
-
-    elif sender.role not in [
-        User.Role.ADMIN,
-        User.Role.MANAGER,
-    ]:
-        raise PermissionError("You are not allowed to send messages.")
-
-    if ticket.status in [
-        Ticket.Status.RESOLVED,
-        Ticket.Status.CLOSED,
-    ]:
+    if ticket.status in [Ticket.Status.RESOLVED, Ticket.Status.CLOSED]:
         raise ValueError("Cannot message on a closed or resolved ticket.")
 
     return MessageRepository.create(
         ticket=ticket,
         sender=sender,
         content=content,
+        channel=Message.Channel.SUPPORT,
     )
 
 
-def get_ticket_messages(ticket_id, user):
-    ticket = Ticket.objects.filter(id=ticket_id).first()
+def get_ticket_messages(ticket_id, user, channel=Message.Channel.SUPPORT):
+    ticket = get_ticket_for_user(ticket_id, user)  # ValueError if not visible
 
-    if ticket is None:
-        raise ValueError("Ticket not found.")
+    if channel == Message.Channel.AI:
+        # The AI chat is private: only its owner can read it.
+        return MessageRepository.get_by_ticket(
+            ticket.id, channel=channel, sender_id=user.id
+        )
 
-    if user.role == User.Role.CUSTOMER:
-        if ticket.customer_id != user.id:
-            raise PermissionError("You cannot view this ticket.")
-
-    elif user.role == User.Role.AGENT:
-        if ticket.assigned_agent_id != user.id:
-            raise PermissionError("You cannot view this ticket.")
-
-    elif user.role not in [
-        User.Role.ADMIN,
-        User.Role.MANAGER,
-    ]:
-        raise PermissionError("You are not allowed to view messages.")
-
-    return MessageRepository.get_by_ticket(ticket_id)
+    return MessageRepository.get_by_ticket(ticket.id, channel=channel)

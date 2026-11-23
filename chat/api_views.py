@@ -1,33 +1,40 @@
 from rest_framework import generics, permissions, status
-from rest_framework.response import Response
 from rest_framework.exceptions import (
     NotFound,
     PermissionDenied,
     ValidationError,
 )
+from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
+from rest_framework.views import APIView
 
 from chat.models import Message
 from chat.serializers import MessageSerializer
+from chat.services.ai_chat_service import AIServiceError, ask_ai_on_ticket
 from chat.services.message_service import (
-    send_message,
     get_ticket_messages,
+    send_message,
 )
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-from chat.services.gemini_service import ask_gemini
+
 
 class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        ticket_id = self.kwargs["ticket_id"]
+        # ?channel=AI returns the user's private AI chat; default is the support thread.
+        channel = self.request.query_params.get(
+            "channel", Message.Channel.SUPPORT
+        ).upper()
+
+        if channel not in Message.Channel.values:
+            raise ValidationError({"channel": "Invalid channel."})
 
         try:
             return get_ticket_messages(
-                ticket_id=ticket_id,
+                ticket_id=self.kwargs["ticket_id"],
                 user=self.request.user,
+                channel=channel,
             )
         except ValueError as error:
             raise NotFound(str(error))
@@ -49,77 +56,55 @@ class MessageListCreateView(generics.ListCreateAPIView):
         except PermissionError as error:
             raise PermissionDenied(str(error))
 
-        response_serializer = self.get_serializer(message)
-
         return Response(
-            response_serializer.data,
+            self.get_serializer(message).data,
             status=status.HTTP_201_CREATED,
         )
 
+
 class AIChatView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "ai_chat"
 
     def post(self, request):
-        from rest_framework import status
-        from rest_framework.response import Response
-        from .models import Message
-        from tickets.models import Ticket
-        from .services.gemini_service import ask_gemini
+        question = request.data.get("question")
 
-        question = request.data.get("question", "").strip()
-        ticket_id= request.data.get("ticket_id")
-
-        if not question:
+        if not isinstance(question, str) or not question.strip():
             return Response(
                 {"error": "Question is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not ticket_id:
+        try:
+            ticket_id = int(request.data.get("ticket_id"))
+        except (TypeError, ValueError):
             return Response(
-                {"error": "ticket_id is required."},
+                {"error": "A valid ticket_id is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
-            ticket = Ticket.objects.get(
-                id=ticket_id,
-                # Only allow access to tickets assigned to this user
-                # or otherwise owned by them, depending on your model.
+            ticket, answer = ask_ai_on_ticket(
+                ticket_id, request.user, question
             )
-        except Ticket.DoesNotExist:
+        except LookupError as error:
             return Response(
-                {"error": "Ticket not found."},
-                status=status.HTTP_404_NOT_FOUND,
+                {"error": str(error)}, status=status.HTTP_404_NOT_FOUND
             )
-
-        try:
-            answer = ask_gemini(question)
-        except Exception as error:
-            print("Gemini error:", type(error).__name__, str(error))
+        except ValueError as error:
             return Response(
-                {"error": "AI service is temporarily unavailable."},
-                status=status.HTTP_502_BAD_GATEWAY,
+                {"error": str(error)}, status=status.HTTP_400_BAD_REQUEST
             )
-
-        Message.objects.create(
-            ticket=ticket,
-            sender=request.user,
-            content=question,
-            is_ai_generated=False,
-        )
-
-        Message.objects.create(
-            ticket=ticket,
-            sender=request.user,
-            content=answer,
-            is_ai_generated=True,
-        )
+        except AIServiceError as error:
+            return Response(
+                {"error": str(error)}, status=status.HTTP_502_BAD_GATEWAY
+            )
 
         return Response(
             {
                 "ticket_id": ticket.id,
-                "question": question,
+                "question": question.strip(),
                 "answer": answer,
                 "saved": True,
             },

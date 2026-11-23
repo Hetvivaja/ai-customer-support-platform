@@ -1,7 +1,13 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
+
 
 class Message(models.Model):
+
+    class Channel(models.TextChoices):
+        SUPPORT = "SUPPORT", "Support thread"
+        AI = "AI", "AI assistant"
+
     ticket = models.ForeignKey(
         "tickets.Ticket",
         on_delete=models.CASCADE,
@@ -18,11 +24,17 @@ class Message(models.Model):
 
     is_ai_generated = models.BooleanField(default=False)
 
+    channel = models.CharField(
+        max_length=10,
+        choices=Channel.choices,
+        default=Channel.SUPPORT,
+        db_index=True,
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["created_at"]
 
     def __str__(self):
-        return f"Message for Ticket #{self.ticket_id}"
-
+        return f"{self.channel} message for Ticket #{self.ticket_id}"
