@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { getTickets, createTicket } from "../../services/ticketService";
 import { useEffect, useState } from "react";
 import "../../styles/customer/CustomerDashboard.css";
 
 function CustomerDashboard() {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -90,11 +92,14 @@ function CustomerDashboard() {
             <div className="ticket-list">
               {tickets.slice(0, 5).map((ticket) => (
                 <div className="ticket-item" key={ticket.id}
-                    onClick={() => (window.location.href = `/tickets/${ticket.id}`)}
+                    onClick={() => navigate(`/tickets/${ticket.id}`)}
                     style={{ cursor: "pointer" }}>
                     <div>
                       <strong>{ticket.title}</strong>
-                      <p>Request #{ticket.id}</p> 
+                      <p>
+                        {ticket.priority} priority ·{" "}
+                        {new Date(ticket.created_at).toLocaleDateString()}
+                      </p>
                     </div>
 
                     <span className="ticket-status">

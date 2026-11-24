@@ -5,7 +5,7 @@ import "../styles/layouts/Layouts.css";
 
 const LINKS = [
   { to: "/dashboard", label: "Dashboard" },
-  { to: "/my-tickets", label: "My Support Requests" },
+  { to: "/my-tickets", label: "My Tickets" },
   { to: "/ai-chat", label: "AI Chat" },
   { to: "/profile", label: "Profile" },
 ];

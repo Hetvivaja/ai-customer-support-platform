@@ -37,6 +37,11 @@ function LoginRoute() {
   return <Login />;
 }
 
+function RoleLayout() {
+  const role = localStorage.getItem("user_role");
+  return role === "CUSTOMER" ? <CustomerLayout /> : <StaffLayout />;
+}
+
 const guard = (roles, el) => <ProtectedRoute allow={roles}>{el}</ProtectedRoute>;
 
 export default function App() {
@@ -56,13 +61,16 @@ export default function App() {
           <Route path="/dashboard" element={guard(["CUSTOMER"], <CustomerDashboard />)} />
           <Route path="/my-tickets" element={guard(["CUSTOMER"], <MyTickets />)} />
           <Route path="/profile" element={guard(["CUSTOMER"], <Profile />)} />
-          <Route path="/ai-chat" element={guard(["CUSTOMER"], <AIChat />)} /> {/* This is fullscreen AI Layout */}
+          <Route path="/ai-chat/:conversationId?" element={guard(["CUSTOMER"], <AIChat />)} /> {/* This is fullscreen AI Layout */}
         </Route>
         {/* Shared ticket page */}
         <Route
-          path="/tickets/:id"
-          element={guard(["CUSTOMER", "AGENT", "MANAGER", "ADMIN"], <TicketDetails />)}
-        />
+          element={
+            <ProtectedRoute allow={["CUSTOMER", "AGENT", "MANAGER", "ADMIN"]}>
+              <RoleLayout />
+            </ProtectedRoute>}>
+            <Route path="/tickets/:id" element={<TicketDetails />} />
+        </Route>
 
          {/* Staff pages share the top bar layout */}
         <Route

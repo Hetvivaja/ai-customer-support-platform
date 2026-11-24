@@ -26,9 +26,9 @@ function TicketDetails() {
 
   return (
     <div className="ticket-details-page">
-      <button className="ticket-details-back" onClick={() => navigate(backPath)}>
+      {/* <button className="ticket-details-back" onClick={() => navigate(backPath)}>
         {backLabel}
-      </button>
+      </button> */}
 
       <h1>Ticket Details</h1>
 

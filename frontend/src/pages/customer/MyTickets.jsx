@@ -1,94 +1,112 @@
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getTickets } from "../../services/ticketService";
-import { useEffect, useState } from "react";
 import "../../styles/customer/MyTickets.css";
+import { getTickets } from "../../services/ticketService";
+
+const FILTERS = [
+  { key: "ALL", label: "All" },
+  { key: "OPEN", label: "Open" },
+  { key: "IN_PROGRESS", label: "In Progress" },
+  { key: "RESOLVED", label: "Resolved" },
+  { key: "CLOSED", label: "Closed" },
+];
 
 function MyTickets() {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState("ALL");
 
   useEffect(() => {
-     getTickets()
+    getTickets()
       .then(setTickets)
       .catch((err) => setError(err.message || "Something went wrong."))
       .finally(() => setLoading(false));
   }, []);
 
-  return (
-    <div className="my-tickets-page">
-      <header className="my-tickets-header">
-        <div>
-          <h1>My Tickets</h1>
-          <p>View and track your support requests.</p>
-        </div>
+  const counts = useMemo(() => {
+    const result = { ALL: tickets.length };
+    tickets.forEach((t) => {
+      result[t.status] = (result[t.status] || 0) + 1;
+    });
+    return result;
+  }, [tickets]);
 
-        <button
-          className="my-tickets-back"
-          onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
-        </button>
+  const visible =
+    filter === "ALL" ? tickets : tickets.filter((t) => t.status === filter);
+
+  return (
+    <div className="mt-page">
+      <header className="mt-header">
+        <h1>My Support Requests</h1>
+        <p>Track the requests you sent to the support team.</p>
       </header>
 
-      {loading && (
-        <p className="my-tickets-message">Loading tickets...</p>
-      )}
+      <div className="mt-filters">
+        {FILTERS.map((f) => (
+          <button
+            key={f.key}
+            className={`mt-filter ${filter === f.key ? "mt-filter-active" : ""}`}
+            onClick={() => setFilter(f.key)}
+          >
+            {f.label} <span>{counts[f.key] || 0}</span>
+          </button>
+        ))}
+      </div>
 
-      {error && (
-        <p className="my-tickets-message my-tickets-error">
-          {error}
+      {loading && <p className="mt-message">Loading requests...</p>}
+      {error && <p className="mt-message mt-error">{error}</p>}
+
+      {!loading && !error && visible.length === 0 && (
+        <p className="mt-message">
+          {tickets.length === 0
+            ? "You have not created any requests yet."
+            : "No requests in this category."}
         </p>
       )}
 
-      {!loading && !error && tickets.length === 0 && (
-        <p className="my-tickets-message">
-          You have not created any tickets yet.
-        </p>
-      )}
-
-      {!loading && !error && tickets.length > 0 && (
-        <div className="my-tickets-list">
-          {tickets.map((ticket) => (
-            <article className="my-ticket-card" key={ticket.id}>
-              <h3>{ticket.title}</h3>
-
-              <p className="my-ticket-id">
-                Ticket #{ticket.id}
-              </p>
-
-              <p className="my-ticket-description">
-                {ticket.description}
-              </p>
-
-              <div className="my-ticket-meta">
-                <span className="my-ticket-badge my-ticket-status">
-                  {ticket.status?.replaceAll("_", " ")}
-                </span>
-
-                <span className="my-ticket-badge my-ticket-priority">
-                  {ticket.priority}
+      {!loading && !error && visible.length > 0 && (
+        <div className="mt-grid">
+          {visible.map((ticket) => (
+            <article className="mt-card" key={ticket.id}>
+              <div className="mt-card-top">
+                <h3>{ticket.title}</h3>
+                <span className={`mt-badge mt-status-${ticket.status}`}>
+                  {ticket.status.replaceAll("_", " ")}
                 </span>
               </div>
 
-              <p className="my-ticket-id">
-                Created:{" "}
-                {ticket.created_at
-                  ? new Date(ticket.created_at).toLocaleString()
-                  : "Not available"}
-              </p>
-            <div className="my-ticket-actions">
-              <button
-                className="my-tickets-back"
-                onClick={() =>navigate(`/tickets/${ticket.id}`)}>
-                View Details
-              </button>
-              <button
-                  className="my-tickets-back"
-                  onClick={() =>navigate(`/ai-chat?ticketId=${ticket.id}`)}>
-                  Chat with AI
-              </button>
-            </div>
+              <p className="mt-description">{ticket.description}</p>
+
+              <div className="mt-meta">
+                <span className={`mt-badge mt-priority-${ticket.priority}`}>
+                  {ticket.priority}
+                </span>
+                <span className="mt-date">
+                  {new Date(ticket.created_at).toLocaleDateString()}
+                </span>
+                {ticket.assigned_agent_name && (
+                  <span className="mt-date">
+                    · Agent: {ticket.assigned_agent_name}
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-actions">
+                <button
+                  className="mt-btn mt-btn-primary"
+                  onClick={() => navigate(`/tickets/${ticket.id}`)}
+                >
+                  View Details
+                </button>
+                <button
+                  className="mt-btn mt-btn-outline"
+                  onClick={() => navigate(`/ai-chat?ticketId=${ticket.id}`)}
+                >
+                  ✦ Ask AI
+                </button>
+              </div>
             </article>
           ))}
         </div>

@@ -13,8 +13,23 @@ export const sendSupportMessage = (ticketId, content) =>
     body: { content },
   });
 
-export const askAI = (ticketId, question) =>
-  apiRequest("/chat/ai/", {
+export async function getConversations() {
+  return toList(await apiRequest("/chat/conversations/"));
+}
+
+export const createConversation = (ticketId = null) =>
+  apiRequest("/chat/conversations/", {
     method: "POST",
-    body: { ticket_id: Number(ticketId), question },
+    body: ticketId ? { ticket_id: Number(ticketId) } : {},
+  });
+
+export const getConversation = (id) => apiRequest(`/chat/conversations/${id}/`);
+
+export const deleteConversation = (id) =>
+  apiRequest(`/chat/conversations/${id}/`, { method: "DELETE" });
+
+export const askConversation = (id, question) =>
+  apiRequest(`/chat/conversations/${id}/messages/`, {
+    method: "POST",
+    body: { question },
   });
