@@ -1,4 +1,4 @@
-
+import { getTickets, createTicket } from "../../services/ticketService";
 import { useEffect, useState } from "react";
 import "../../styles/customer/CustomerDashboard.css";
 
@@ -9,53 +9,14 @@ function CustomerDashboard() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [newPriority, setNewPriority] = useState("MEDIUM");
   const [saving, setSaving] = useState(false);
   const [createError, setCreateError] = useState("");
 
   useEffect(() => {
-    async function loadTickets() {
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        window.location.href = "/";
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/tickets/",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.status === 401) {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          window.location.href = "/";
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error("Unable to load tickets.");
-        }
-
-        const data = await response.json();
-
-        // Supports either a regular array or paginated results.
-        
-        setTickets(Array.isArray(data) ? data : data.results || []);
-      } catch (err) {
-        setError(err.message || "Unable to connect to Django.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadTickets();
+    getTickets()
+      .then(setTickets)
+      .catch((err) => setError(err.message || "Unable to connect to Django."))
+      .finally(() => setLoading(false));
   }, []);
 
   const openTickets = tickets.filter(
@@ -68,47 +29,15 @@ function CustomerDashboard() {
 
   
   async function handleCreateTicket(event) {
-    event.preventDefault();
-
+   event.preventDefault();
     setSaving(true);
     setCreateError("");
 
     try {
-      const token = localStorage.getItem("access_token");
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/tickets/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            title: newTitle.trim(),
-            description: newDescription.trim(),
-            priority: newPriority,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.detail ||
-          data.title?.[0] ||
-          data.description?.[0] ||
-          JSON.stringify(data)
-        );
-        }
-
-      // Add the newly created ticket to the dashboard.
-      setTickets((previousTickets) => [...previousTickets, data]);
-
+      const ticket = await createTicket(newTitle.trim(), newDescription.trim());
+      setTickets((previous) => [ticket, ...previous]); // newest first
       setNewTitle("");
       setNewDescription("");
-      setNewPriority("MEDIUM");
       setShowCreateForm(false);
     } catch (err) {
       setCreateError(err.message || "Could not create ticket.");
@@ -116,46 +45,9 @@ function CustomerDashboard() {
       setSaving(false);
     }
   }
- 
-  function logout() {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    window.location.href = "/";
-  }
 
   return (
     <div className="dashboard">
-      <aside className="sidebar">
-        <h2>AI Support</h2>
-        <button
-  className="sidebar-link active"
-  onClick={() => window.location.href = "/dashboard"}
->
-  Dashboard
-</button>
-
-<button
-  className="sidebar-link"
-  onClick={() => window.location.href = "/my-tickets"}
->
-  My Support Requests
-</button>
-
-<button
-  className="sidebar-link"
-  onClick={() => window.location.href = "/ai-chat"}
->
-  AI Chat
-</button>
-
-<button
-  className="sidebar-link"
-  onClick={() => window.location.href = "/profile"}
->
-  Profile
-</button>
-      </aside>
-
       <main className="dashboard-main">
         <header className="dashboard-header">
           <div>
@@ -163,7 +55,7 @@ function CustomerDashboard() {
             <p>Welcome to your support workspace.</p>
           </div>
 
-          <button onClick={logout}>Logout</button>
+        
         </header>
 
         <section className="stats">
@@ -197,15 +89,17 @@ function CustomerDashboard() {
           {!loading && !error && tickets.length > 0 && (
             <div className="ticket-list">
               {tickets.slice(0, 5).map((ticket) => (
-                <div className="ticket-item" key={ticket.id}>
-                  <div>
-                    <strong>{ticket.title}</strong>
-                    <p>Request #{ticket.id}</p> 
-                  </div>
+                <div className="ticket-item" key={ticket.id}
+                    onClick={() => (window.location.href = `/tickets/${ticket.id}`)}
+                    style={{ cursor: "pointer" }}>
+                    <div>
+                      <strong>{ticket.title}</strong>
+                      <p>Request #{ticket.id}</p> 
+                    </div>
 
-                  <span className="ticket-status">
-                    {ticket.status.replace("_", " ")}
-                  </span>
+                    <span className="ticket-status">
+                      {ticket.status.replace("_", " ")}
+                    </span>
                 </div>
               ))}
             </div>
@@ -240,19 +134,6 @@ function CustomerDashboard() {
                 rows={4}
                 required
               />
-
-              <label htmlFor="ticket-priority">Priority</label>
-              <select
-                id="ticket-priority"
-                value={newPriority}
-                onChange={(event) => setNewPriority(event.target.value)}
-              >
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-                <option value="URGENT">Urgent</option>
-              </select>
-
               {createError && (
                 <p className="error-message" role="alert">{createError}</p>
               )}

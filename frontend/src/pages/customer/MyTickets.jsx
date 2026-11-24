@@ -1,47 +1,19 @@
-
+import { useNavigate } from "react-router-dom";
+import { getTickets } from "../../services/ticketService";
 import { useEffect, useState } from "react";
 import "../../styles/customer/MyTickets.css";
 
 function MyTickets() {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadTickets() {
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        window.location.href = "/";
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/tickets/",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Unable to load tickets.");
-        }
-
-        const data = await response.json();
-        setTickets(
-          Array.isArray(data) ? data : data.results || []
-        );
-      } catch (err) {
-        setError(err.message || "Something went wrong.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadTickets();
+     getTickets()
+      .then(setTickets)
+      .catch((err) => setError(err.message || "Something went wrong."))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -54,8 +26,7 @@ function MyTickets() {
 
         <button
           className="my-tickets-back"
-          onClick={() => (window.location.href = "/dashboard")}
-        >
+          onClick={() => navigate("/dashboard")}>
           Back to Dashboard
         </button>
       </header>
@@ -109,17 +80,12 @@ function MyTickets() {
             <div className="my-ticket-actions">
               <button
                 className="my-tickets-back"
-                onClick={() =>
-                  (window.location.href = `/ticket-details?id=${ticket.id}`)
-                }>
+                onClick={() =>navigate(`/tickets/${ticket.id}`)}>
                 View Details
               </button>
               <button
                   className="my-tickets-back"
-                  onClick={() =>
-                    (window.location.href = `/ai-chat?ticketId=${ticket.id}`)
-                  }
-                >
+                  onClick={() =>navigate(`/ai-chat?ticketId=${ticket.id}`)}>
                   Chat with AI
               </button>
             </div>

@@ -1,0 +1,143 @@
+/* Customer layout */
+
+.cl-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+.cl-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  width: 230px;
+  min-width: 230px;
+  height: 100vh;
+  padding: 28px 16px;
+  background: #172554;
+  color: white;
+}
+
+.cl-sidebar h2 {
+  margin: 0 0 32px 12px;
+  font-size: 22px;
+}
+
+.cl-sidebar nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cl-link {
+  display: block;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.cl-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.cl-link-active {
+  background: #2563eb;
+  color: white;
+}
+
+.cl-sidebar-footer {
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cl-sidebar-footer p {
+  margin: 0 0 10px 6px;
+  color: #cbd5e1;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.cl-sidebar-footer button {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+}
+
+.cl-sidebar-footer button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.cl-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Staff layout */
+
+.sl-shell {
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+.sl-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 30px;
+  background: #172554;
+  color: white;
+}
+
+.sl-brand {
+  font-size: 18px;
+}
+
+.sl-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+}
+
+.sl-role {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sl-user button {
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+}
+
+.sl-user button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 700px) {
+  .cl-sidebar {
+    width: 150px;
+    min-width: 150px;
+    padding: 18px 10px;
+  }
+
+  .sl-topbar {
+    padding: 12px 16px;
+  }
+}

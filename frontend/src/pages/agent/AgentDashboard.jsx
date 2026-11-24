@@ -1,4 +1,4 @@
-
+import { getTickets } from "../../services/ticketService";
 import { useEffect, useState } from "react";
 import "../../styles/agent/AgentDashboard.css";
 
@@ -8,36 +8,10 @@ function AgentDashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadTickets() {
-      const token = localStorage.getItem("access_token");
-
-      try {
-        const response = await fetch(
-          "http://127.0.0.1:8000/api/tickets/",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Unable to load assigned tickets.");
-        }
-
-        const data = await response.json();
-
-        setTickets(
-          Array.isArray(data) ? data : data.results || []
-        );
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadTickets();
+      getTickets()
+      .then(setTickets)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
   const openTickets = tickets.filter(
@@ -52,15 +26,6 @@ function AgentDashboard() {
     (ticket) => ticket.status === "RESOLVED"
   ).length;
 
-  function logout() {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_role");
-    localStorage.removeItem("user_data");
-
-    window.location.href = "/";
-  }
-
   return (
     <div className="agent-dashboard">
       <header className="agent-header">
@@ -68,8 +33,6 @@ function AgentDashboard() {
           <h1>Agent Dashboard</h1>
           <p>Manage your assigned support requests.</p>
         </div>
-
-        <button onClick={logout}>Logout</button>
       </header>
 
       <section className="agent-stats">
