@@ -1,6 +1,6 @@
+from django.db.models import Count
 from django.contrib.auth import get_user_model
 from django.db import transaction
-
 from tickets.models import Ticket
 from tickets.repositories.ticket_repository import TicketRepository
 
@@ -15,7 +15,6 @@ def create_ticket(customer, title, description, priority="MEDIUM"):
         description=description,
         priority=priority,
     )
-
 
 def get_customer_tickets(customer):
     return TicketRepository.get_by_customer(customer.id)
@@ -113,15 +112,24 @@ def update_ticket(ticket_id, actor, data):
 
     return TicketRepository.update(ticket, **changes)
 
-# def update_ticket_status(ticket_id, status):
-#     ticket = TicketRepository.get_by_id(ticket_id)
+def get_ticket_stats(actor):
+    if actor.role not in (User.Role.MANAGER, User.Role.ADMIN):
+        raise PermissionError("Only managers and admins can view statistics.")
 
-#     if ticket is None:
-#         raise ValueError("Ticket not found.")
+    tickets = get_visible_tickets(actor)
 
-#     allowed_statuses = Ticket.Status.values
+    def count_by(field, choices):
+        rows = tickets.order_by().values(field).annotate(n=Count("id"))
+        found = {row[field]: row["n"] for row in rows}
+        return {value: found.get(value, 0) for value in choices}
 
-#     if status not in allowed_statuses:
-#         raise ValueError("Invalid ticket status.")
-
-#     return TicketRepository.update(ticket, status=status)
+    return {
+        "total": tickets.count(),
+        "unassigned": tickets.filter(
+            assigned_agent__isnull=True,
+        ).exclude(
+            status__in=[Ticket.Status.RESOLVED, Ticket.Status.CLOSED]
+        ).count(),
+        "by_status": count_by("status", Ticket.Status.values),
+        "by_priority": count_by("priority", Ticket.Priority.values),
+    }

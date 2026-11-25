@@ -13,11 +13,11 @@ from tickets.services.ticket_ai_service import (
 from tickets.services.ticket_service import (
     assign_ticket,
     create_ticket,
+    get_ticket_stats,
     get_visible_tickets,
     update_ticket,
 )
 from users.permissions import IsManagerOrAdmin, IsStaffRole
-
 
 def _to_api_error(error):
     if isinstance(error, PermissionError):
@@ -123,3 +123,12 @@ class TicketAIPriorityView(APIView):
             "suggested_priority": ticket.ai_suggested_priority,
             "reason": reason,
         })
+
+class TicketStatsView(APIView):
+    permission_classes = [IsManagerOrAdmin]
+
+    def get(self, request):
+        try:
+            return Response(get_ticket_stats(request.user))
+        except PermissionError as error:
+            raise PermissionDenied(str(error))

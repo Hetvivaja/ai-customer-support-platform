@@ -6,6 +6,7 @@ from tickets.api_views import (
     TicketDetailView,
     TicketListCreateView,
     TicketUpdateView,
+    TicketStatsView,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path("<int:pk>/assign/", AssignTicketView.as_view(), name="ticket-assign"),
     path("<int:pk>/ai-summary/", TicketAISummaryView.as_view(), name="ticket-ai-summary"),
     path("<int:pk>/ai-priority/", TicketAIPriorityView.as_view(), name="ticket-ai-priority"),
+    path("stats/", TicketStatsView.as_view(), name="ticket-stats"),
 ]

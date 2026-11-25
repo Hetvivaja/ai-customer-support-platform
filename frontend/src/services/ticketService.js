@@ -25,3 +25,5 @@ export const getAIPriority = (id) =>
   apiRequest(`/tickets/${id}/ai-priority/`, { method: "POST" });
 
 export const getAgents = () => apiRequest("/auth/agents/");
+
+export const getTicketStats = () => apiRequest("/tickets/stats/");

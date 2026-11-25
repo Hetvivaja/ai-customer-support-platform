@@ -1,0 +1,245 @@
+.mg-page {
+  padding: 30px;
+  color: #1e293b;
+}
+
+.mg-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.mg-header p {
+  margin: 0 0 24px;
+  color: #64748b;
+}
+
+.mg-error {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.mg-muted {
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Stat cards */
+
+.mg-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.mg-card {
+  padding: 20px 22px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mg-card p {
+  margin: 0 0 6px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.mg-card h2 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.mg-card-warn h2 {
+  color: #b45309;
+}
+
+/* Panels */
+
+.mg-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.mg-panel {
+  margin-bottom: 22px;
+  padding: 22px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mg-two .mg-panel {
+  margin-bottom: 0;
+}
+
+.mg-panel h3 {
+  margin: 0 0 16px;
+  font-size: 17px;
+}
+
+/* Bars */
+
+.mg-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mg-bar-label {
+  width: 90px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.mg-bar-track {
+  flex: 1;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e2e8f0;
+}
+
+.mg-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: #2563eb;
+  transition: width 0.4s ease;
+}
+
+.mg-bar-count {
+  width: 28px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.mg-status-OPEN.mg-bar-fill { background: #2563eb; }
+.mg-status-IN_PROGRESS.mg-bar-fill { background: #f59e0b; }
+.mg-status-RESOLVED.mg-bar-fill { background: #16a34a; }
+.mg-status-CLOSED.mg-bar-fill { background: #94a3b8; }
+
+.mg-priority-LOW.mg-bar-fill { background: #94a3b8; }
+.mg-priority-MEDIUM.mg-bar-fill { background: #6366f1; }
+.mg-priority-HIGH.mg-bar-fill { background: #f97316; }
+.mg-priority-URGENT.mg-bar-fill { background: #dc2626; }
+
+/* Rows */
+
+.mg-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mg-row:last-child {
+  border-bottom: none;
+}
+
+.mg-row-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.mg-row-main strong {
+  overflow-wrap: anywhere;
+}
+
+.mg-row-main:hover strong {
+  color: #2563eb;
+}
+
+.mg-row-main small {
+  color: #64748b;
+}
+
+.mg-row select {
+  min-width: 190px;
+  padding: 9px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
+  color: #1e293b;
+  font: inherit;
+  width: auto;
+}
+
+.mg-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+span.mg-status-OPEN { background: #dbeafe; color: #1d4ed8; }
+span.mg-status-IN_PROGRESS { background: #fef3c7; color: #92400e; }
+span.mg-status-RESOLVED { background: #dcfce7; color: #166534; }
+span.mg-status-CLOSED { background: #e2e8f0; color: #475569; }
+
+span.mg-priority-LOW { background: #f1f5f9; color: #475569; }
+span.mg-priority-MEDIUM { background: #e0e7ff; color: #3730a3; }
+span.mg-priority-HIGH { background: #ffedd5; color: #9a3412; }
+span.mg-priority-URGENT { background: #fee2e2; color: #b91c1c; }
+
+/* Table */
+
+.mg-table-wrap {
+  overflow-x: auto;
+}
+
+.mg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.mg-table th,
+.mg-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.mg-table th {
+  color: #64748b;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 900px) {
+  .mg-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mg-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .mg-page {
+    padding: 16px;
+  }
+
+  .mg-row {
+    flex-wrap: wrap;
+  }
+
+  .mg-row select {
+    width: 100%;
+  }
+}
