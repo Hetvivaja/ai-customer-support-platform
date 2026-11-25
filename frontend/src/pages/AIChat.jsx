@@ -22,17 +22,37 @@ function AIChat() {
 
   const [active, setActive] = useState(null); // the open conversation
   const [messages, setMessages] = useState([]);
-  const [draft, setDraft] = useState(null); // new chat not saved yet: { ticketId, ticketTitle }
-  const [picking, setPicking] = useState(false); // choosing a ticket for a ticket chat
+  const [draft, setDraft] = useState(null); // new chat not saved yet
+  const [picking, setPicking] = useState(false); // choosing a ticket
 
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    try {
+      const saved = localStorage.getItem("ai_sidebar_open");
+      if (saved !== null) return saved === "true";
+    } catch {
+      /* ignore storage errors */
+    }
+    return window.innerWidth > 700; // closed by default on phones
+  });
+
   const endRef = useRef(null);
   const skipLoadId = useRef(null); // conversation we just created ourselves
   const ticketParamHandled = useRef(false);
+
+  function toggleSidebar() {
+    const next = !sidebarOpen;
+    setSidebarOpen(next);
+    try {
+      localStorage.setItem("ai_sidebar_open", String(next));
+    } catch {
+      /* ignore storage errors */
+    }
+  }
 
   // Sidebar history and the tickets used by "Ticket-based chat"
   useEffect(() => {
@@ -78,7 +98,7 @@ function AIChat() {
     };
   }, [conversationId]);
 
-  // Coming from "Chat with AI" on a ticket: /ai-chat?ticketId=5
+  // Coming from "Ask AI" on a ticket: /ai-chat?ticketId=5
   useEffect(() => {
     if (listLoading || !ticketParam || conversationId || ticketParamHandled.current) {
       return;
@@ -183,10 +203,33 @@ function AIChat() {
   return (
     <div className="ai-chat-layout">
       {/* LEFT SIDEBAR: AI conversations only */}
-      <aside className="ai-chat-sidebar">
+      <aside
+        className={`ai-chat-sidebar ${sidebarOpen ? "" : "ai-chat-sidebar-closed"}`}
+      >
         <div className="sidebar-brand">
-          <div className="sidebar-logo">AI</div>
           <h2>AI Assistant</h2>
+
+          <button
+            type="button"
+            className="sidebar-arrow"
+            onClick={toggleSidebar}
+            title="Close sidebar"
+            aria-label="Close AI sidebar"
+            aria-expanded={sidebarOpen}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
         </div>
 
         <button className="new-chat-button" onClick={startNewChat}>
@@ -240,7 +283,30 @@ function AIChat() {
       {/* MAIN AREA */}
       <main className="ai-chat-main">
         <header className="chat-topbar">
-          <div>
+          {!sidebarOpen && (
+            <button
+              type="button"
+              className="topbar-toggle"
+              onClick={toggleSidebar}
+              title="Open sidebar"
+              aria-label="Open AI sidebar"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 6 15 12 9 18" />
+              </svg>
+            </button>
+          )}
+
+          <div className="chat-topbar-text">
             <h1>{active?.title || "AI Assistant"}</h1>
             <p>
               {linkedTitle

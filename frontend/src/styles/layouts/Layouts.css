@@ -1,4 +1,4 @@
-/* Customer layout */
+/* ---------- Customer layout ---------- */
 
 .cl-shell {
   display: flex;
@@ -17,11 +17,46 @@
   padding: 28px 16px;
   background: #172554;
   color: white;
+  overflow: hidden;
+  transition: width 0.25s ease, min-width 0.25s ease, padding 0.25s ease;
 }
 
-.cl-sidebar h2 {
+.cl-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 0 0 32px 12px;
+}
+
+.cl-sidebar-head h2 {
+  margin: 0;
   font-size: 22px;
+  white-space: nowrap;
+}
+
+.cl-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+}
+
+.cl-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.cl-toggle:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
 }
 
 .cl-sidebar nav {
@@ -32,14 +67,19 @@
 }
 
 .cl-link {
-  display: block;
+   display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 12px 14px;
   border-radius: 8px;
   color: #cbd5e1;
   font-size: 15px;
   text-decoration: none;
+  white-space: nowrap;
 }
-
+.cl-link svg {
+  flex-shrink: 0;
+}
 .cl-link:hover {
   background: rgba(255, 255, 255, 0.08);
   color: white;
@@ -81,7 +121,7 @@
   min-width: 0;
 }
 
-/* Staff layout */
+/* ---------- Staff layout ---------- */
 
 .sl-shell {
   min-height: 100vh;
@@ -130,6 +170,8 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* ---------- Responsive ---------- */
+
 @media (max-width: 700px) {
   .cl-sidebar {
     width: 150px;
@@ -140,4 +182,16 @@
   .sl-topbar {
     padding: 12px 16px;
   }
+}
+
+/* Must stay LAST so the collapsed state beats the phone width above */
+.cl-sidebar.cl-sidebar-collapsed {
+  width: 64px;
+  min-width: 64px;
+  padding: 28px 12px;
+}
+
+.cl-sidebar.cl-sidebar-collapsed .cl-sidebar-head {
+  justify-content: center;
+  margin-left: 0;
 }
