@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { login, DASHBOARD } from "../../services/authService";
 import "../../styles/auth/Login.css";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -60,6 +61,9 @@ function Login() {
         <button type="submit" disabled={loading}>
           {loading ? "Signing in..." : "Login"}
         </button>
+        <p className="login-switch">
+          New here? <Link to="/register">Create an account</Link>
+        </p>
       </form>
     </div>
   );

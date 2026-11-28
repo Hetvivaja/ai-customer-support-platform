@@ -62,7 +62,18 @@
   cursor: not-allowed;
 }
 
+.login-card a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-card a:hover {
+  text-decoration: underline;
+}
+
 .login-error {
   color: #dc2626;
   margin: 0;
 }
+

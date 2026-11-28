@@ -109,7 +109,7 @@ function AIChat() {
     if (ticket) {
       setDraft({ ticketId: ticket.id, ticketTitle: ticket.title });
     } else {
-      setError("That support request was not found.");
+      setError("That support ticket was not found.");
     }
     setSearchParams({}, { replace: true });
   }, [listLoading, ticketParam, conversationId, tickets, setSearchParams]);
@@ -257,7 +257,7 @@ function AIChat() {
                 <span className="history-text">
                   <strong>{c.title}</strong>
                   <small>
-                    {c.ticket ? "About a support request" : "General chat"}
+                    {c.ticket ? "About a support ticket" : "General chat"}
                   </small>
                 </span>
               </button>
@@ -310,7 +310,7 @@ function AIChat() {
             <h1>{active?.title || "AI Assistant"}</h1>
             <p>
               {linkedTitle
-                ? `Using your support request: ${linkedTitle}`
+                ? `Using your support ticket: ${linkedTitle}`
                 : "Ask anything. Chats are saved automatically."}
             </p>
           </div>
@@ -331,7 +331,7 @@ function AIChat() {
                     <span>💬</span>
                     <span>
                       <strong>General AI chat</strong>
-                      <small>Ask any question. No support request needed.</small>
+                      <small>Ask any question. No support ticket needed.</small>
                     </span>
                     <span className="request-arrow">→</span>
                   </button>
@@ -339,18 +339,18 @@ function AIChat() {
                   <button className="request-option" onClick={() => setPicking(true)}>
                     <span>🎫</span>
                     <span>
-                      <strong>Chat about a support request</strong>
-                      <small>The AI will use that request's details to help you.</small>
+                      <strong>Chat about a ticket</strong>
+                      <small>The AI will use that ticket's details to help you.</small>
                     </span>
                     <span className="request-arrow">→</span>
                   </button>
                 </div>
               ) : (
                 <div className="request-selection">
-                  <h3>Select a support request</h3>
+                  <h3>Select a ticket</h3>
 
                   {tickets.length === 0 && (
-                    <p>You don't have any support requests yet.</p>
+                    <p>You don't have any tickets yet.</p>
                   )}
 
                   {tickets.map((ticket) => (
@@ -384,11 +384,11 @@ function AIChat() {
                 <div className="chat-empty">
                   <div className="welcome-icon">✦</div>
                   <h2>
-                    {linkedTitle ? "Ask about your request" : "Start a conversation"}
+                    {linkedTitle ? "Ask about your ticket" : "Start a conversation"}
                   </h2>
                   <p>
                     {linkedTitle
-                      ? "I already know the details of your support request."
+                      ? "I already know the details of your support ticket."
                       : "Type your question below."}
                   </p>
                 </div>
@@ -453,7 +453,7 @@ function AIChat() {
 
           <p className="chat-disclaimer">
             AI responses may not always be accurate. Need a person? Create a
-            support request from your dashboard.
+            support ticket from your dashboard.
           </p>
         </section>
       </main>

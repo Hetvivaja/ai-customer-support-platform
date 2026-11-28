@@ -39,8 +39,8 @@ function MyTickets() {
   return (
     <div className="mt-page">
       <header className="mt-header">
-        <h1>My Support Requests</h1>
-        <p>Track the requests you sent to the support team.</p>
+        <h1>My Support Tickets</h1>
+        <p>Track the tickets you sent to the support team.</p>
       </header>
 
       <div className="mt-filters">

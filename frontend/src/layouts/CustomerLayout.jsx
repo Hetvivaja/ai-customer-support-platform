@@ -49,7 +49,7 @@ const ICONS = {
 
 const LINKS = [
   { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { to: "/my-tickets", label: "My Support Requests", icon: "tickets" },
+  { to: "/my-tickets", label: "My Tickets", icon: "tickets" },
   { to: "/ai-chat", label: "AI Chat", icon: "chat" },
   { to: "/profile", label: "Profile", icon: "profile" },
 ];

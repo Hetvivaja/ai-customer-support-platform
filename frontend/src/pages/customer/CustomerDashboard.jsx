@@ -62,30 +62,30 @@ function CustomerDashboard() {
 
         <section className="stats">
           <div className="stat-card">
-            <p>Total Requests</p>
+            <p>Total Tickets</p>
             <h2>{loading ? "..." : tickets.length}</h2>
           </div>
 
           <div className="stat-card">
-            <p>Open Requests</p>
+            <p>Open Tickets</p>
             <h2>{loading ? "..." : openTickets}</h2>
           </div>
 
           <div className="stat-card">
-            <p>Resolved Requests</p>
+            <p>Resolved Tickets</p>
             <h2>{loading ? "..." : resolvedTickets}</h2>
           </div>
         </section>
 
         <section className="tickets-panel">
-          <h2>My Recent Requests</h2>
+          <h2>My Recent Tickets</h2>
 
-          {loading && <p>Loading requests...</p>}
+          {loading && <p>Loading tickets...</p>}
 
           {error && <p className="error-message">{error}</p>}
 
           {!loading && !error && tickets.length === 0 && (
-            <p>You have not created any requests yet.</p>
+            <p>You have not created any tickets yet.</p>
           )}
 
           {!loading && !error && tickets.length > 0 && (
@@ -144,7 +144,7 @@ function CustomerDashboard() {
               )}
 
               <button type="submit" disabled={saving}>
-                {saving ? "Creating..." : "Submit Request"}
+                {saving ? "Creating..." : "Submit Ticket"}
               </button>
           </form>
           )}

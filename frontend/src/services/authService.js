@@ -43,3 +43,24 @@ export function getStoredUser() {
     return null;
   }
 }
+
+export const register = (username, email, password) =>
+  apiRequest("/auth/register/", {
+    method: "POST",
+    body: { username: username.trim(), email: email.trim(), password },
+    auth: false,
+  });
+
+export const getMe = () => apiRequest("/auth/me/");
+
+export async function updateProfile(changes) {
+  const user = await apiRequest("/auth/me/", { method: "PATCH", body: changes });
+  localStorage.setItem("user_data", JSON.stringify(user));
+  return user;
+}
+
+export const changePassword = (currentPassword, newPassword) =>
+  apiRequest("/auth/change-password/", {
+    method: "POST",
+    body: { current_password: currentPassword, new_password: newPassword },
+  });

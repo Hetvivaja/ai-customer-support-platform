@@ -151,6 +151,8 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "ai_chat": "20/min",
         "ai_ticket": "30/min",
+        "register": "10/hour",
+        "password_change": "5/min",
     },
 }
 

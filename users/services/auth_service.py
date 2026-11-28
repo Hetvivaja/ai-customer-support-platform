@@ -117,3 +117,47 @@ def update_user_by_admin(actor, user_id, data):
         raise ValueError("You cannot change your own role or deactivate yourself.")
 
     return UserRepository.update(target, **changes)
+
+def update_profile(user, data):
+    allowed = {"first_name", "last_name", "email"}
+    unknown = set(data) - allowed
+    if unknown:
+        raise ValueError(f"You cannot change: {', '.join(sorted(unknown))}.")
+
+    changes = {}
+
+    for field in ("first_name", "last_name"):
+        if field in data:
+            value = str(data[field] or "").strip()
+            if len(value) > 150:
+                raise ValueError("Name is too long (maximum 150 characters).")
+            changes[field] = value
+
+    if "email" in data:
+        email = str(data["email"] or "").strip()
+        if not email:
+            raise ValueError("Email cannot be empty.")
+        other = UserRepository.get_by_email(email)
+        if other and other.id != user.id:
+            raise ValueError("An account with this email already exists.")
+        changes["email"] = email
+
+    if not changes:
+        raise ValueError("Nothing to update.")
+
+    return UserRepository.update(user, **changes)
+
+
+def change_password(user, current_password, new_password):
+    if not user.check_password(current_password or ""):
+        raise ValueError("Current password is incorrect.")
+    if current_password == new_password:
+        raise ValueError("The new password must be different.")
+
+    try:
+        password_validation.validate_password(new_password or "", user)
+    except DjangoValidationError as error:
+        raise ValueError(" ".join(error.messages))
+
+    user.set_password(new_password)
+    user.save(update_fields=["password"])

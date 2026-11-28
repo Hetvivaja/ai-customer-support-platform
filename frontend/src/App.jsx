@@ -2,6 +2,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import MyTickets from "./pages/customer/MyTickets";
 import TicketDetails from "./pages/customer/TicketDetails";
@@ -30,11 +31,11 @@ function ProtectedRoute({ allow, children }) {
   return children;
 }
 
-function LoginRoute() {
+function LoginRoute({ children }) {
   const token = localStorage.getItem("access_token");
   const role = localStorage.getItem("user_role");
   if (token && DASHBOARD[role]) return <Navigate to={DASHBOARD[role]} replace />;
-  return <Login />;
+  return children ;
 }
 
 function RoleLayout() {
@@ -48,7 +49,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LoginRoute />} />
+        <Route path="/" element={<LoginRoute><Login /></LoginRoute>} />
+        <Route path="/register" element={<LoginRoute><Register /></LoginRoute>} />
 
          {/* Customer pages share the sidebar layout */}
         <Route

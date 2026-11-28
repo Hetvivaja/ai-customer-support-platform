@@ -5,6 +5,8 @@ from users.permissions import IsManagerOrAdmin
 from users.serializers import RegisterSerializer
 from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
+from rest_framework.throttling import ScopedRateThrottle
+from users.services.auth_service import change_password, update_profile
 
 from users.permissions import IsAdmin
 from users.services.auth_service import (
@@ -16,19 +18,31 @@ from users.services.auth_service import (
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "register"
 
+def _me_data(user):
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "role": user.role,
+    }
 
 class MeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        return Response({
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "role": user.role,
-        })
+        return Response(_me_data(request.user))
+
+    def patch(self, request):
+        try:
+            user = update_profile(request.user, request.data)
+        except ValueError as error:
+            raise ValidationError(str(error))
+        return Response(_me_data(user))
 
 class AgentListView(APIView):
     permission_classes = [IsManagerOrAdmin]
@@ -95,3 +109,19 @@ class UserDetailView(APIView):
             raise _to_api_error(error)
 
         return Response(_user_data(user))
+
+class ChangePasswordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "password_change"
+
+    def post(self, request):
+        try:
+            change_password(
+                request.user,
+                request.data.get("current_password"),
+                request.data.get("new_password"),
+            )
+        except ValueError as error:
+            raise ValidationError(str(error))
+        return Response({"detail": "Password changed."})
