@@ -105,18 +105,32 @@ function AIChat() {
     }
     ticketParamHandled.current = true;
 
+    const ticketId = Number(ticketParam);
     const ticket = tickets.find((t) => String(t.id) === ticketParam);
-    if (ticket) {
-      setDraft({ ticketId: ticket.id, ticketTitle: ticket.title });
-    } else {
-      setError("That support ticket was not found.");
+
+    if (!ticket) {
+      setError("That support request was not found.");
+      setSearchParams({}, { replace: true });
+      return;
     }
-    setSearchParams({}, { replace: true });
-  }, [listLoading, ticketParam, conversationId, tickets, setSearchParams]);
+
+    const existing = conversations.find((c) => c.ticket === ticketId);
+    if (existing) {
+      navigate(`/ai-chat/${existing.id}`, { replace: true });
+    } else {
+      setDraft({ ticketId: ticket.id, ticketTitle: ticket.title });
+      setSearchParams({}, { replace: true });
+    }
+  }, [listLoading, ticketParam, conversationId, tickets, conversations, navigate, setSearchParams]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length, sending]);
+
+  // Most recent saved chat linked to this ticket (the list is newest first)
+  function findTicketConversation(ticketId) {
+    return conversations.find((c) => c.ticket === ticketId) || null;
+  }
 
   function startNewChat() {
     setDraft(null);
@@ -132,6 +146,12 @@ function AIChat() {
 
   function startTicketChat(ticket) {
     setPicking(false);
+
+    const existing = findTicketConversation(ticket.id);
+    if (existing) {
+      openConversation(existing); // loads the saved history
+      return;
+    }
     setDraft({ ticketId: ticket.id, ticketTitle: ticket.title });
   }
 
